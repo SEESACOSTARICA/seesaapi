@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/UserSchema");
+const Client = require("../../models/ClientSchema");
 
 require("dotenv").config({ path: ".env" });
 
@@ -18,6 +19,26 @@ const resolvers = {
       // Encuentra al usuario por su ID y devuelve la información relevante, excluyendo la contraseña
       const userInfo = await User.findById(user.id).select("-password");
       return userInfo;
+    },
+    getClients: async () => {
+      try {
+        const clients = await Client.find();
+        return clients;
+      } catch (error) {
+        throw new Error("Error fetching clients");
+      }
+    },
+    // Resolver to get a single client by ID
+    getClient: async (_, { id }) => {
+      try {
+        const client = await Client.findById(id);
+        if (!client) {
+          throw new Error("Client not found");
+        }
+        return client;
+      } catch (error) {
+        throw new Error("Error fetching the client");
+      }
     },
   },
   Mutation: {
@@ -57,6 +78,43 @@ const resolvers = {
         token: createToken(user, process.env.JWT_SECRET),
         user,
       };
+    },
+
+    // Resolver to create a new client
+    createClient: async (_, { input }) => {
+      try {
+        const newClient = new Client(input);
+        const result = await newClient.save();
+        return result;
+      } catch (error) {
+        throw new Error("Error creating a new client");
+      }
+    },
+    // Resolver to update an existing client
+    updateClient: async (_, { id, input }) => {
+      try {
+        const client = await Client.findByIdAndUpdate(id, input, {
+          new: true,
+        });
+        if (!client) {
+          throw new Error("Client not found");
+        }
+        return client;
+      } catch (error) {
+        throw new Error("Error updating the client");
+      }
+    },
+    // Resolver to delete a client
+    deleteClient: async (_, { id }) => {
+      try {
+        const client = await Client.findByIdAndRemove(id);
+        if (!client) {
+          throw new Error("Client not found");
+        }
+        return client;
+      } catch (error) {
+        throw new Error("Error deleting the client");
+      }
     },
   },
 };

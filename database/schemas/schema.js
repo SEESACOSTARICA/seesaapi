@@ -28,15 +28,122 @@ const typeDefs = gql`
     token: String!
     user: User!
   }
+
+  type Client {
+    id: ID!
+    razonSocial: String!
+    nombreComercial: String!
+    tipoIdentificacion: String!
+    numeroIdentificacion: String!
+    codigo: String!
+    correosElectronicos: [String]!
+    tipoDocumento: String
+    correoEnvioFE: String
+    destinatarioEnvioFE: String
+    condicionVenta: String
+    plazo: Int
+    limiteCredito: Float
+    moneda: String
+    metodoPago: String
+    formaEntrega: String
+    transporte: String
+    destino: String
+    detalleObservacion: String
+    cobrarEnvio: Boolean
+    oficinas: [Office]
+    exonerado: Boolean
+    numeroAutorizacion: String
+    fechaAutorizacion: String
+    fechaVencimiento: String
+    porcentajeExoneracion: Float
+    contactoCompras: Contact
+    impresoras: [Printer]
+    contactoPagos: Contact
+  }
+
+  type Office {
+    telefono: String
+    provincia: String
+    canton: String
+    distrito: String
+  }
+
+  type Contact {
+    nombre: String
+    telefono: String
+    celular: String
+    correoElectronico: String
+  }
+
+  type Printer {
+    marca: String
+    modelo: String
+  }
+
+  input ClientInput {
+    razonSocial: String!
+    nombreComercial: String!
+    tipoIdentificacion: String!
+    numeroIdentificacion: String!
+    codigo: String!
+    correosElectronicos: [String]!
+    tipoDocumento: String
+    correoEnvioFE: String
+    destinatarioEnvioFE: String
+    condicionVenta: String
+    plazo: Int
+    limiteCredito: Float
+    moneda: String
+    metodoPago: String
+    formaEntrega: String
+    transporte: String
+    destino: String
+    detalleObservacion: String
+    cobrarEnvio: Boolean
+    oficinas: [OfficeInput]
+    exonerado: Boolean
+    numeroAutorizacion: String
+    fechaAutorizacion: String
+    fechaVencimiento: String
+    porcentajeExoneracion: Float
+    contactoCompras: ContactInput
+    impresoras: [PrinterInput]
+    contactoPagos: ContactInput
+  }
+
+  input OfficeInput {
+    telefono: String
+    provincia: String
+    canton: String
+    distrito: String
+  }
+
+  input ContactInput {
+    nombre: String
+    telefono: String
+    celular: String
+    correoElectronico: String
+  }
+
+  input PrinterInput {
+    marca: String
+    modelo: String
+  }
+
   # Queries
   type Query {
     getMe(token: String!): User
+    getClients: [Client]
+    getClient(id: ID!): Client
   }
 
   type Mutation {
     # Mutaciones para la creación de usuarios y autenticación
     createUser(input: CreateUserInput): AuthPayload
     login(input: LoginInput): AuthPayload
+    createClient(input: ClientInput): Client
+    updateClient(id: ID!, input: ClientInput): Client
+    deleteClient(id: ID!): Client
   }
 `;
 
