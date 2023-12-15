@@ -45,12 +45,7 @@ const startServer = async () => {
     },
   });
 
-  app.use(
-    cors({
-      origin: "https://main--soft-liger-e490bb.netlify.app/login",
-      credentials: true,
-    })
-  );
+  app.use(cors());
 
   try {
     await server.start();
