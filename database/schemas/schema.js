@@ -61,6 +61,27 @@ const typeDefs = gql`
     contactoPagos: Contact
   }
 
+  type Supplier {
+    id: ID!
+    razonSocial: String!
+    nombreComercial: String!
+    tipoIdentificacion: String!
+    numeroIdentificacion: String!
+    codigo: String!
+    correosElectronicos: [String]!
+    tipoDocumento: String
+    condicionDeVenta: String
+    plazo: Int
+    limiteCredito: Float
+    moneda: String
+    metodoPago: String
+    formaEntrega: String
+    detalleObservacion: String
+    oficinas: [Office]
+    contactoVentas: Contact
+    contactoCredito: Contact
+  }
+
   type Office {
     telefono: String
     provincia: String
@@ -111,6 +132,25 @@ const typeDefs = gql`
     contactoPagos: ContactInput
   }
 
+  input SupplierInput {
+    razonSocial: String!
+    nombreComercial: String!
+    tipoIdentificacion: String!
+    numeroIdentificacion: String!
+    codigo: String!
+    correosElectronicos: [String]!
+    tipoDocumento: String
+    condicionDeVenta: String
+    plazo: Int
+    limiteCredito: Float
+    moneda: String
+    metodoPago: String
+    formaEntrega: String
+    detalleObservacion: String
+    oficinas: [OfficeInput]
+    contactoVentas: ContactInput
+    contactoCredito: ContactInput
+  }
   input OfficeInput {
     telefono: String
     provincia: String
@@ -135,6 +175,9 @@ const typeDefs = gql`
     getMe(token: String!): User
     getClients: [Client]
     getClient(id: ID!): Client
+
+    getSuppliers: [Supplier]
+    getSupplier(id: ID!): Supplier
   }
 
   type Mutation {
@@ -144,6 +187,10 @@ const typeDefs = gql`
     createClient(input: ClientInput): Client
     updateClient(id: ID!, input: ClientInput): Client
     deleteClient(id: ID!): Client
+
+    createSupplier(input: SupplierInput): Supplier
+    updateSupplier(id: ID!, input: SupplierInput): Supplier
+    deleteSupplier(id: ID!): Supplier
   }
 `;
 

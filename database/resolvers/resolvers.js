@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/UserSchema");
 const Client = require("../../models/ClientSchema");
+const Supplier = require("../../models/SupplierSchema");
 
 require("dotenv").config({ path: ".env" });
 
@@ -20,6 +21,8 @@ const resolvers = {
       const userInfo = await User.findById(user.id).select("-password");
       return userInfo;
     },
+
+    //CLIENTS
     getClients: async () => {
       try {
         const clients = await Client.find();
@@ -38,6 +41,28 @@ const resolvers = {
         return client;
       } catch (error) {
         throw new Error("Error fetching the client");
+      }
+    },
+
+    //SUPPLIERS
+    getSuppliers: async () => {
+      try {
+        const suppliers = await Supplier.find();
+        return suppliers;
+      } catch (error) {
+        throw new Error("Error fetching suppliers");
+      }
+    },
+    // Resolver to get a single client by ID
+    getSupplier: async (_, { id }) => {
+      try {
+        const supplier = await Supplier.findById(id);
+        if (!supplier) {
+          throw new Error("Supplier not found");
+        }
+        return supplier;
+      } catch (error) {
+        throw new Error("Error fetching the supplier");
       }
     },
   },
@@ -80,13 +105,16 @@ const resolvers = {
       };
     },
 
+    //CLIENT
     // Resolver to create a new client
     createClient: async (_, { input }) => {
       try {
         const newClient = new Client(input);
         const result = await newClient.save();
+
         return result;
       } catch (error) {
+        console.log(error);
         throw new Error("Error creating a new client");
       }
     },
@@ -114,6 +142,46 @@ const resolvers = {
         return client;
       } catch (error) {
         throw new Error("Error deleting the client");
+      }
+    },
+
+    //SUPPLIER
+
+    // Resolver to create a new supplier
+    createSupplier: async (_, { input }) => {
+      try {
+        const newSupplier = new Supplier(input);
+        const result = await newSupplier.save();
+        return result;
+      } catch (error) {
+        console.log(error);
+        throw new Error("Error creating a new supplier");
+      }
+    },
+    // Resolver to update an existing client
+    updateSupplier: async (_, { id, input }) => {
+      try {
+        const supplier = await Supplier.findByIdAndUpdate(id, input, {
+          new: true,
+        });
+        if (!supplier) {
+          throw new Error("Supplier not found");
+        }
+        return supplier;
+      } catch (error) {
+        throw new Error("Error updating the supplier");
+      }
+    },
+    // Resolver to delete a client
+    deleteSupplier: async (_, { id }) => {
+      try {
+        const supplier = await Supplier.findByIdAndRemove(id);
+        if (!supplier) {
+          throw new Error("Supplier not found");
+        }
+        return supplier;
+      } catch (error) {
+        throw new Error("Error deleting the supplier");
       }
     },
   },
