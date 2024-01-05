@@ -121,9 +121,13 @@ const resolvers = {
     // Resolver to update an existing client
     updateClient: async (_, { id, input }) => {
       try {
-        const client = await Client.findByIdAndUpdate(id, input, {
-          new: true,
-        });
+        const client = await Client.findByIdAndUpdate(
+          id,
+          { $set: input },
+          { new: true }
+        );
+
+        console.log(client);
         if (!client) {
           throw new Error("Client not found");
         }
@@ -132,6 +136,7 @@ const resolvers = {
         throw new Error("Error updating the client");
       }
     },
+
     // Resolver to delete a client
     deleteClient: async (_, { id }) => {
       try {
@@ -167,6 +172,7 @@ const resolvers = {
         if (!supplier) {
           throw new Error("Supplier not found");
         }
+        console.log(supplier);
         return supplier;
       } catch (error) {
         throw new Error("Error updating the supplier");

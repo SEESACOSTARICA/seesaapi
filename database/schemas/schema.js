@@ -31,12 +31,12 @@ const typeDefs = gql`
 
   type Client {
     id: ID!
-    razonSocial: String!
-    nombreComercial: String!
-    tipoIdentificacion: String!
-    numeroIdentificacion: String!
-    codigo: String!
-    correosElectronicos: [String]!
+    razonSocial: String
+    nombreComercial: String
+    tipoIdentificacion: String
+    numeroIdentificacion: String
+    codigo: String
+    correosElectronicos: [String]
     tipoDocumento: String
     correoEnvioFE: String
     destinatarioEnvioFE: String
@@ -102,12 +102,12 @@ const typeDefs = gql`
   }
 
   input ClientInput {
-    razonSocial: String!
-    nombreComercial: String!
-    tipoIdentificacion: String!
-    numeroIdentificacion: String!
-    codigo: String!
-    correosElectronicos: [String]!
+    razonSocial: String
+    nombreComercial: String
+    tipoIdentificacion: String
+    numeroIdentificacion: String
+    codigo: String
+    correosElectronicos: [String]
     tipoDocumento: String
     correoEnvioFE: String
     destinatarioEnvioFE: String

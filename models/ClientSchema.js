@@ -1,20 +1,22 @@
 const mongoose = require("mongoose");
 
 const clientSchema = new mongoose.Schema({
-  razonSocial: { type: String, required: true },
-  nombreComercial: { type: String, required: true },
-  tipoIdentificacion: { type: String, required: true },
-  numeroIdentificacion: { type: String, required: true, unique: true },
-  codigo: { type: String, required: true },
+  razonSocial: { type: String },
+  nombreComercial: { type: String },
+  tipoIdentificacion: { type: String },
+  numeroIdentificacion: { type: String, unique: true },
+  codigo: { type: String },
   correosElectronicos: [{ type: String }],
   tipoDocumento: { type: String },
   correoEnvioFE: { type: String },
   destinatarioEnvioFE: { type: String },
+
   condicionVenta: { type: String },
   plazo: { type: Number },
   limiteCredito: { type: Number },
   moneda: { type: String },
   metodoPago: { type: String },
+
   formaEntrega: { type: String },
   transporte: { type: String },
   destino: { type: String },
