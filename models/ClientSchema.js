@@ -12,8 +12,8 @@ const clientSchema = new mongoose.Schema({
   destinatarioEnvioFE: { type: String },
 
   condicionVenta: { type: String },
-  plazo: { type: Number },
-  limiteCredito: { type: Number },
+  plazo: { type: Number, default: null },
+  limiteCredito: { type: Number, default: null },
   moneda: { type: String },
   metodoPago: { type: String },
 
@@ -21,20 +21,21 @@ const clientSchema = new mongoose.Schema({
   transporte: { type: String },
   destino: { type: String },
   detalleObservacion: { type: String },
-  cobrarEnvio: { type: Boolean },
+  cobrarEnvio: { type: Boolean, default: null },
   oficinas: [
     {
       telefono: { type: String },
       provincia: { type: String },
       canton: { type: String },
       distrito: { type: String },
+      detalle: { type: String },
     },
   ],
-  exonerado: { type: Boolean },
+  exonerado: { type: Boolean, default: null },
   numeroAutorizacion: { type: String },
-  fechaAutorizacion: { type: Date },
-  fechaVencimiento: { type: Date },
-  porcentajeExoneracion: { type: Number },
+  fechaAutorizacion: { type: Date, default: null },
+  fechaVencimiento: { type: Date, default: null },
+  porcentajeExoneracion: { type: Number, default: null },
   impresoras: [
     {
       marca: { type: String },

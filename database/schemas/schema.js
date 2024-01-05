@@ -63,12 +63,12 @@ const typeDefs = gql`
 
   type Supplier {
     id: ID!
-    razonSocial: String!
-    nombreComercial: String!
-    tipoIdentificacion: String!
-    numeroIdentificacion: String!
-    codigo: String!
-    correosElectronicos: [String]!
+    razonSocial: String
+    nombreComercial: String
+    tipoIdentificacion: String
+    numeroIdentificacion: String
+    codigo: String
+    correosElectronicos: [String]
     tipoDocumento: String
     condicionDeVenta: String
     plazo: Int
@@ -87,6 +87,7 @@ const typeDefs = gql`
     provincia: String
     canton: String
     distrito: String
+    detalle: String
   }
 
   type Contact {
@@ -133,12 +134,12 @@ const typeDefs = gql`
   }
 
   input SupplierInput {
-    razonSocial: String!
-    nombreComercial: String!
-    tipoIdentificacion: String!
-    numeroIdentificacion: String!
-    codigo: String!
-    correosElectronicos: [String]!
+    razonSocial: String
+    nombreComercial: String
+    tipoIdentificacion: String
+    numeroIdentificacion: String
+    codigo: String
+    correosElectronicos: [String]
     tipoDocumento: String
     condicionDeVenta: String
     plazo: Int
@@ -156,6 +157,7 @@ const typeDefs = gql`
     provincia: String
     canton: String
     distrito: String
+    detalle: String
   }
 
   input ContactInput {

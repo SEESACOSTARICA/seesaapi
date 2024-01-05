@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const supplierSchema = new mongoose.Schema({
-  razonSocial: { type: String, required: true },
-  nombreComercial: { type: String, required: true },
-  tipoIdentificacion: { type: String, required: true },
-  numeroIdentificacion: { type: String, required: true, unique: true },
-  codigo: { type: String, required: true },
+  razonSocial: { type: String },
+  nombreComercial: { type: String },
+  tipoIdentificacion: { type: String },
+  numeroIdentificacion: { type: String, unique: true },
+  codigo: { type: String },
   correosElectronicos: [{ type: String }],
   tipoDocumento: { type: String },
   condicionDeVenta: { type: String },
@@ -21,6 +21,7 @@ const supplierSchema = new mongoose.Schema({
       provincia: { type: String },
       canton: { type: String },
       distrito: { type: String },
+      detalle: { type: String },
     },
   ],
   contactoVentas: {
