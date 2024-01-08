@@ -137,15 +137,36 @@ const resolvers = {
       }
     },
 
+    // deleteUser: async (_, { id }, ctx) => {
+    //   // Check if the medical record exists
+    //   let user = await User.findById(id);
+
+    //   if (!user) {
+    //     throw new Error("El usuario no existe");
+    //   }
+
+    //   // Delete inventory
+    //   try {
+    //     await User.findOneAndDelete({ _id: id });
+    //     return "Usuario eliminado correctamente";
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // },
+
     // Resolver to delete a client
     deleteClient: async (_, { id }) => {
+      let client = await Client.findById(id);
+
+      if (!client) {
+        throw new Error("El usuario no existe");
+      }
       try {
-        const client = await Client.findByIdAndRemove(id);
-        if (!client) {
-          throw new Error("Client not found");
-        }
+        await Client.findOneAndDelete({ _id: id });
+
         return client;
       } catch (error) {
+        console.log(error);
         throw new Error("Error deleting the client");
       }
     },
@@ -166,13 +187,16 @@ const resolvers = {
     // Resolver to update an existing client
     updateSupplier: async (_, { id, input }) => {
       try {
-        const supplier = await Supplier.findByIdAndUpdate(id, input, {
-          new: true,
-        });
+        const supplier = await Supplier.findByIdAndUpdate(
+          id,
+          { $set: input },
+          { new: true }
+        );
+
         if (!supplier) {
           throw new Error("Supplier not found");
         }
-        console.log(supplier);
+
         return supplier;
       } catch (error) {
         throw new Error("Error updating the supplier");
