@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../../models/UserSchema");
 const Client = require("../../models/ClientSchema");
 const Supplier = require("../../models/SupplierSchema");
+const Product = require("../../models/ProductSchema");
 
 require("dotenv").config({ path: ".env" });
 
@@ -63,6 +64,26 @@ const resolvers = {
         return supplier;
       } catch (error) {
         throw new Error("Error fetching the supplier");
+      }
+    },
+
+    getProducts: async () => {
+      try {
+        const products = await Product.find()
+          .populate("proveedor")
+          .populate("clientes");
+        return products;
+      } catch (error) {
+        throw new Error("Error fetching products");
+      }
+    },
+
+    getProductCountByCategory: async (_, { category }) => {
+      try {
+        const count = await Product.countDocuments({ categorias: category });
+        return { count };
+      } catch (error) {
+        throw new Error("Error fetching product count");
       }
     },
   },
@@ -212,6 +233,46 @@ const resolvers = {
         return supplier;
       } catch (error) {
         throw new Error("Error deleting the supplier");
+      }
+    },
+
+    // Product
+
+    createProduct: async (_, { input }) => {
+      console.log(input);
+      try {
+        const newProduct = new Product(input);
+        await newProduct.save();
+        return newProduct;
+      } catch (error) {
+        console.log(error);
+        throw new Error("Error al crear el producto");
+      }
+    },
+
+    updateProduct: async (_, { id, input }) => {
+      try {
+        const updatedProduct = await Product.findByIdAndUpdate(
+          id,
+          { $set: input },
+          { new: true }
+        )
+          .populate("proveedor")
+          .populate("clientes");
+        console.log(updatedProduct);
+        return updatedProduct;
+      } catch (error) {
+        console.log(error);
+        throw new Error("Error al actualizar el producto");
+      }
+    },
+
+    deleteProduct: async (_, { id }) => {
+      try {
+        const deletedProduct = await Product.findByIdAndRemove(id);
+        return deletedProduct;
+      } catch (error) {
+        throw new Error("Error al eliminar el producto");
       }
     },
   },

@@ -82,6 +82,25 @@ const typeDefs = gql`
     contactoCredito: Contact
   }
 
+  type Product {
+    id: ID!
+    codigo: String
+    codigoCabys: String
+    detalle: String
+    venta: Float
+    monedaVenta: String
+    costo: Float
+    monedaCosto: String
+    proveedor: [Supplier]
+    presentacion: String
+    existencia: Int
+    sugerido: Int
+    ubicacion: String
+    observacion: String
+    clientes: [Client]
+    categorias: String
+  }
+
   type Office {
     telefono: String
     provincia: String
@@ -100,6 +119,10 @@ const typeDefs = gql`
   type Printer {
     marca: String
     modelo: String
+  }
+
+  type ProductCount {
+    count: Int
   }
 
   input ClientInput {
@@ -152,6 +175,25 @@ const typeDefs = gql`
     contactoVentas: ContactInput
     contactoCredito: ContactInput
   }
+
+  input ProductInput {
+    codigo: String
+    codigoCabys: String
+    detalle: String
+    venta: Float
+    monedaVenta: String
+    costo: Float
+    monedaCosto: String
+    proveedor: [ID]
+    presentacion: String
+    existencia: Int
+    sugerido: Int
+    ubicacion: String
+    observacion: String
+    clientes: [ID]
+    categorias: String
+  }
+
   input OfficeInput {
     telefono: String
     provincia: String
@@ -180,6 +222,11 @@ const typeDefs = gql`
 
     getSuppliers: [Supplier]
     getSupplier(id: ID!): Supplier
+
+    getProducts: [Product]
+    getProduct(id: ID!): Product
+
+    getProductCountByCategory(category: String!): ProductCount
   }
 
   type Mutation {
@@ -193,6 +240,10 @@ const typeDefs = gql`
     createSupplier(input: SupplierInput): Supplier
     updateSupplier(id: ID!, input: SupplierInput): Supplier
     deleteSupplier(id: ID!): Supplier
+
+    createProduct(input: ProductInput): Product
+    updateProduct(id: ID!, input: ProductInput): Product
+    deleteProduct(id: ID!): Product
   }
 `;
 

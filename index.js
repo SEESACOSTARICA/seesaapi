@@ -30,7 +30,7 @@ const startServer = async () => {
     context: async ({ req }) => {
       const authHeader = req.headers.authorization || "";
 
-      const token = authHeader.split(" ")[1]; // Asume que el formato es Bearer <token>
+      const token = authHeader.split(" ")[1];
 
       if (token) {
         const user = await getUserFromToken(token, process.env.JWT_SECRET);
