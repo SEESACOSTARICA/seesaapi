@@ -29,7 +29,7 @@ const productoSchema = new Schema(
     observacion: String,
     categorias: {
       type: String,
-      enum: ["R", "C", "O", "01", "02", "03", "04", "05", "06"],
+      enum: ["R", "C", "O", "01", "02", "03", "04", "05", "06", "SEESA"],
     },
   },
   { timestamps: true }
