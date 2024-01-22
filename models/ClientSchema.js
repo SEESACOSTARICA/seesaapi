@@ -10,6 +10,7 @@ const clientSchema = new mongoose.Schema({
   tipoDocumento: { type: String },
   correoEnvioFE: { type: String },
   destinatarioEnvioFE: { type: String },
+  detallesGenerales: { type: String },
 
   condicionVenta: { type: String },
   plazo: { type: Number, default: null },
@@ -36,6 +37,7 @@ const clientSchema = new mongoose.Schema({
   fechaAutorizacion: { type: Date, default: null },
   fechaVencimiento: { type: Date, default: null },
   porcentajeExoneracion: { type: Number, default: null },
+  institucionEmisora: { type: String },
   impresoras: [
     {
       marca: { type: String },

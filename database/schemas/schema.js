@@ -35,6 +35,7 @@ const typeDefs = gql`
     nombreComercial: String
     tipoIdentificacion: String
     numeroIdentificacion: String
+    detallesGenerales: String
     codigo: String
     correosElectronicos: [String]
     tipoDocumento: String
@@ -56,6 +57,7 @@ const typeDefs = gql`
     fechaAutorizacion: String
     fechaVencimiento: String
     porcentajeExoneracion: Float
+    institucionEmisora: String
     contactoCompras: Contact
     impresoras: [Printer]
     contactoPagos: Contact
@@ -130,6 +132,7 @@ const typeDefs = gql`
     nombreComercial: String
     tipoIdentificacion: String
     numeroIdentificacion: String
+    detallesGenerales: String
     codigo: String
     correosElectronicos: [String]
     tipoDocumento: String
@@ -151,6 +154,7 @@ const typeDefs = gql`
     fechaAutorizacion: String
     fechaVencimiento: String
     porcentajeExoneracion: Float
+    institucionEmisora: String
     contactoCompras: ContactInput
     impresoras: [PrinterInput]
     contactoPagos: ContactInput
