@@ -127,6 +127,23 @@ const typeDefs = gql`
     count: Int
   }
 
+  type InvoiceProduct {
+    product: ID!
+    cantidad: Int!
+  }
+
+  type Invoice {
+    id: ID!
+    invoiceNumber: String!
+    date: String!
+    type: String!
+    total: Float!
+    products: [InvoiceProduct]
+    client: Client
+    supplier: Supplier
+  }
+  # Inputs
+
   input ClientInput {
     razonSocial: String
     nombreComercial: String
@@ -218,6 +235,20 @@ const typeDefs = gql`
     modelo: String
   }
 
+  input InvoiceProductInput {
+    product: ID!
+    cantidad: Int!
+  }
+  input InvoiceInput {
+    invoiceNumber: String!
+    date: String!
+    type: String!
+    total: Float!
+    products: [InvoiceProductInput!]
+    client: ID
+    supplier: ID
+  }
+
   # Queries
   type Query {
     getMe(token: String!): User
@@ -231,6 +262,9 @@ const typeDefs = gql`
     getProduct(id: ID!): Product
 
     getProductCountByCategory(category: String!): ProductCount
+
+    getAllInvoices: [Invoice]
+    getInvoiceById(id: ID!): Invoice
   }
 
   type Mutation {
@@ -248,6 +282,10 @@ const typeDefs = gql`
     createProduct(input: ProductInput): Product
     updateProduct(id: ID!, input: ProductInput): Product
     deleteProduct(id: ID!): Product
+
+    createInvoice(invoiceInput: InvoiceInput): Invoice
+    updateInvoice(id: ID!, invoiceInput: InvoiceInput): Invoice
+    deleteInvoice(id: ID!): String
   }
 `;
 

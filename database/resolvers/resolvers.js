@@ -4,6 +4,8 @@ const User = require("../../models/UserSchema");
 const Client = require("../../models/ClientSchema");
 const Supplier = require("../../models/SupplierSchema");
 const Product = require("../../models/ProductSchema");
+const Invoice = require("../../models/InvoiceSchema");
+const mongoose = require("mongoose");
 
 require("dotenv").config({ path: ".env" });
 
@@ -85,6 +87,13 @@ const resolvers = {
       } catch (error) {
         throw new Error("Error fetching product count");
       }
+    },
+
+    getAllInvoices: async () => {
+      return await Invoice.find({}).populate("products client supplier");
+    },
+    getInvoiceById: async (_, { id }) => {
+      return await Invoice.findById(id).populate("products client supplier");
     },
   },
   Mutation: {
@@ -274,6 +283,66 @@ const resolvers = {
       } catch (error) {
         throw new Error("Error al eliminar el producto");
       }
+    },
+    createInvoice: async (_, { invoiceInput }) => {
+      let total = 0;
+      const session = await mongoose.startSession();
+      try {
+        session.startTransaction();
+
+        const productUpdates = invoiceInput.products.map(async (item) => {
+          const producto = await Product.findById(item.product).session(
+            session
+          );
+          if (!producto) {
+            throw new Error("Producto no encontrado");
+          }
+
+          // Asumiendo que 'venta' es el precio de venta del producto
+          total += producto.venta * item.cantidad;
+
+          if (invoiceInput.type === "Compra") {
+            producto.existencia += item.cantidad;
+          } else {
+            // 'Venta'
+            producto.existencia -= item.cantidad;
+            if (producto.existencia < 0) {
+              throw new Error(
+                `Existencia insuficiente para el producto ${producto.id}`
+              );
+            }
+          }
+
+          await producto.save({ session });
+        });
+
+        await Promise.all(productUpdates);
+
+        const newInvoice = new Invoice({
+          ...invoiceInput,
+          total, // Asumiendo que queremos calcular el total automáticamente
+        });
+
+        await newInvoice.save({ session });
+
+        await session.commitTransaction();
+        session.endSession();
+        return newInvoice.populate("products.product");
+      } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
+      }
+    },
+
+    updateInvoice: async (_, { id, invoiceInput }) => {
+      return await Invoice.findByIdAndUpdate(id, invoiceInput, {
+        new: true,
+      }).populate("products client supplier");
+    },
+    deleteInvoice: async (_, { id }) => {
+      await Invoice.findByIdAndDelete(id);
+      return "Invoice deleted successfully";
     },
   },
 };
