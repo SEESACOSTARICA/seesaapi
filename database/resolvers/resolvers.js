@@ -28,45 +28,113 @@ const resolvers = {
     //CLIENTS
     getClients: async () => {
       try {
-        const clients = await Client.find();
+        let clients = await Client.find().populate(
+          "productosAsignados.producto"
+        );
+        clients = clients.map((client) => {
+          client.productosAsignados = client.productosAsignados.map((pa) => {
+            // Assuming the populated 'producto' document is directly accessible
+            if (pa.producto && pa.producto._id) {
+              pa.producto.id = pa.producto._id.toString(); // Convert ObjectId to string
+            }
+            return pa;
+          });
+          return client;
+        });
         return clients;
       } catch (error) {
         throw new Error("Error fetching clients");
       }
     },
-    // Resolver to get a single client by ID
+
     getClient: async (_, { id }) => {
       try {
-        const client = await Client.findById(id);
+        let client = await Client.findById(id).populate(
+          "productosAsignados.producto"
+        );
         if (!client) {
           throw new Error("Client not found");
         }
+
+        // Manually adjust populated fields if necessary
+        client = client.toObject({ virtuals: true }); // Convert the Mongoose document to a plain JavaScript object, applying virtuals
+        client.productosAsignados = client.productosAsignados.map((pa) => {
+          if (pa.producto && pa.producto._id) {
+            // Ensure any ObjectId is converted to string
+            pa.producto.id = pa.producto._id.toString();
+          }
+          return pa;
+        });
+
         return client;
       } catch (error) {
+        console.error(error);
         throw new Error("Error fetching the client");
       }
     },
-
     //SUPPLIERS
     getSuppliers: async () => {
+      // try {
+      //   const suppliers = await Supplier.find();
+      //   return suppliers;
+      // } catch (error) {
+      //   throw new Error("Error fetching suppliers");
+      // }
       try {
-        const suppliers = await Supplier.find();
+        let suppliers = await Supplier.find().populate(
+          "productosAsignados.producto"
+        );
+        suppliers = suppliers.map((supplier) => {
+          supplier.productosAsignados = supplier.productosAsignados.map(
+            (pa) => {
+              // Assuming the populated 'producto' document is directly accessible
+              if (pa.producto && pa.producto._id) {
+                pa.producto.id = pa.producto._id.toString(); // Convert ObjectId to string
+              }
+              return pa;
+            }
+          );
+          return supplier;
+        });
         return suppliers;
       } catch (error) {
-        throw new Error("Error fetching suppliers");
+        throw new Error("Error fetching clients");
       }
     },
     // Resolver to get a single client by ID
     getSupplier: async (_, { id }) => {
       try {
-        const supplier = await Supplier.findById(id);
+        let supplier = await Supplier.findById(id).populate(
+          "productosAsignados.producto"
+        );
         if (!supplier) {
           throw new Error("Supplier not found");
         }
+
+        // Manually adjust populated fields if necessary
+        supplier = supplier.toObject({ virtuals: true }); // Convert the Mongoose document to a plain JavaScript object, applying virtuals
+        supplier.productosAsignados = supplier.productosAsignados.map((pa) => {
+          if (pa.producto && pa.producto._id) {
+            // Ensure any ObjectId is converted to string
+            pa.producto.id = pa.producto._id.toString();
+          }
+          return pa;
+        });
+
         return supplier;
       } catch (error) {
+        console.error(error);
         throw new Error("Error fetching the supplier");
       }
+      // try {
+      //   const supplier = await Supplier.findById(id);
+      //   if (!supplier) {
+      //     throw new Error("Supplier not found");
+      //   }
+      //   return supplier;
+      // } catch (error) {
+      //   throw new Error("Error fetching the supplier");
+      // }
     },
 
     getProducts: async () => {
@@ -284,34 +352,65 @@ const resolvers = {
         throw new Error("Error al eliminar el producto");
       }
     },
+
     createInvoice: async (_, { invoiceInput }) => {
       let total = 0;
       const session = await mongoose.startSession();
       try {
         session.startTransaction();
 
+        // Buscar el cliente o proveedor para verificar los productos asignados
+        const target = invoiceInput.client
+          ? await Client.findById(invoiceInput.client).session(session)
+          : await Supplier.findById(invoiceInput.supplier).session(session);
+
+        if (!target) {
+          throw new Error("Cliente o Proveedor no encontrado");
+        }
+
         const productUpdates = invoiceInput.products.map(async (item) => {
-          const producto = await Product.findById(item.product).session(
+          // Verificar si el producto está en los productos asignados del cliente/proveedor
+          const isAssignedProduct = target.productosAsignados.some(
+            (p) => p.producto.toString() === item.producto.toString()
+          );
+
+          if (!isAssignedProduct) {
+            throw new Error(
+              `Producto no asignado al Cliente/Proveedor: ${item.producto}`
+            );
+          }
+
+          const producto = await Product.findById(item.producto).session(
             session
           );
           if (!producto) {
             throw new Error("Producto no encontrado");
           }
 
-          // Asumiendo que 'venta' es el precio de venta del producto
-          total += producto.venta * item.cantidad;
+          // Asumiendo que el precio especial podría estar definido en 'productosAsignados'
+          const assignedProduct = target.productosAsignados.find(
+            (p) => p.producto.toString() === item.producto.toString()
+          );
 
-          if (invoiceInput.type === "Compra") {
-            producto.existencia += item.cantidad;
-          } else {
-            // 'Venta'
-            producto.existencia -= item.cantidad;
-            if (producto.existencia < 0) {
-              throw new Error(
-                `Existencia insuficiente para el producto ${producto.id}`
-              );
-            }
-          }
+          console.log(assignedProduct);
+          const precioVenta =
+            assignedProduct && assignedProduct.precioEspecial
+              ? assignedProduct.precioEspecial
+              : producto.venta;
+
+          total += precioVenta * item.cantidad;
+
+          // if (invoiceInput.type === "Compra") {
+          //   producto.existencia += item.cantidad;
+          // } else {
+          //   // 'Venta'
+          //   producto.existencia -= item.cantidad;
+          //   if (producto.existencia < 0) {
+          //     throw new Error(
+          //       `Existencia insuficiente para el producto ${producto.id}`
+          //     );
+          //   }
+          // }
 
           await producto.save({ session });
         });
@@ -320,20 +419,71 @@ const resolvers = {
 
         const newInvoice = new Invoice({
           ...invoiceInput,
-          total, // Asumiendo que queremos calcular el total automáticamente
+          total,
         });
 
         await newInvoice.save({ session });
 
         await session.commitTransaction();
         session.endSession();
-        return newInvoice.populate("products.product");
+        return newInvoice;
       } catch (error) {
         await session.abortTransaction();
         session.endSession();
         throw error;
       }
     },
+
+    // createInvoice: async (_, { invoiceInput }) => {
+    //   let total = 0;
+    //   const session = await mongoose.startSession();
+    //   try {
+    //     session.startTransaction();
+
+    //     const productUpdates = invoiceInput.products.map(async (item) => {
+    //       const producto = await Product.findById(item.product).session(
+    //         session
+    //       );
+    //       if (!producto) {
+    //         throw new Error("Producto no encontrado");
+    //       }
+
+    //       // Asumiendo que 'venta' es el precio de venta del producto
+    //       total += producto.venta * item.cantidad;
+
+    //       if (invoiceInput.type === "Compra") {
+    //         producto.existencia += item.cantidad;
+    //       } else {
+    //         // 'Venta'
+    //         producto.existencia -= item.cantidad;
+    //         if (producto.existencia < 0) {
+    //           throw new Error(
+    //             `Existencia insuficiente para el producto ${producto.id}`
+    //           );
+    //         }
+    //       }
+
+    //       await producto.save({ session });
+    //     });
+
+    //     await Promise.all(productUpdates);
+
+    //     const newInvoice = new Invoice({
+    //       ...invoiceInput,
+    //       total, // Asumiendo que queremos calcular el total automáticamente
+    //     });
+
+    //     await newInvoice.save({ session });
+
+    //     await session.commitTransaction();
+    //     session.endSession();
+    //     return newInvoice.populate("products.product");
+    //   } catch (error) {
+    //     await session.abortTransaction();
+    //     session.endSession();
+    //     throw error;
+    //   }
+    // },
 
     updateInvoice: async (_, { id, invoiceInput }) => {
       return await Invoice.findByIdAndUpdate(id, invoiceInput, {

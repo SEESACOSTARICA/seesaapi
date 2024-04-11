@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const clientSchema = new mongoose.Schema({
   razonSocial: { type: String },
@@ -11,13 +12,11 @@ const clientSchema = new mongoose.Schema({
   correoEnvioFE: { type: String },
   destinatarioEnvioFE: { type: String },
   detallesGenerales: { type: String },
-
   condicionVenta: { type: String },
   plazo: { type: Number, default: null },
   limiteCredito: { type: Number, default: null },
   moneda: { type: String },
   metodoPago: { type: String },
-
   formaEntrega: { type: String },
   transporte: { type: String },
   destino: { type: String },
@@ -56,6 +55,25 @@ const clientSchema = new mongoose.Schema({
     celular: { type: String },
     correoElectronico: { type: String },
   },
+  productosAsignados: [
+    {
+      producto: {
+        type: Schema.Types.ObjectId,
+        ref: "Producto",
+      },
+      precioEspecial: {
+        type: Number,
+      },
+      detalles: {
+        color: String,
+        material: String,
+        adhesivo: String,
+        columnas: Number,
+        embobinado: String,
+        cantidadPorRollo: Number,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model("Client", clientSchema);

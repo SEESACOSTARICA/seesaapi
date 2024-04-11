@@ -61,6 +61,22 @@ const typeDefs = gql`
     contactoCompras: Contact
     impresoras: [Printer]
     contactoPagos: Contact
+    productosAsignados: [ProductoAsignado]
+  }
+
+  type ProductoAsignado {
+    producto: Product!
+    precioEspecial: Float
+    detalles: DetallesProducto
+  }
+
+  type DetallesProducto {
+    color: String
+    material: String
+    adhesivo: String
+    columnas: Int
+    embobinado: String
+    cantidadPorRollo: Int
   }
 
   type Supplier {
@@ -82,6 +98,7 @@ const typeDefs = gql`
     oficinas: [Office]
     contactoVentas: Contact
     contactoCredito: Contact
+    productosAsignados: [ProductoAsignado]
   }
 
   type Product {
@@ -127,21 +144,24 @@ const typeDefs = gql`
     count: Int
   }
 
-  type InvoiceProduct {
-    product: ID!
-    cantidad: Int!
-  }
-
   type Invoice {
     id: ID!
     invoiceNumber: String!
     date: String!
-    type: String!
-    total: Float!
-    products: [InvoiceProduct]
     client: Client
     supplier: Supplier
+    type: String!
+    total: Float!
+    products: [InvoiceProduct!]!
   }
+
+  type InvoiceProduct {
+    producto: ID!
+    cantidad: Int!
+    precioEspecial: Float!
+    detalles: DetallesProducto
+  }
+
   # Inputs
 
   input ClientInput {
@@ -175,6 +195,22 @@ const typeDefs = gql`
     contactoCompras: ContactInput
     impresoras: [PrinterInput]
     contactoPagos: ContactInput
+    productosAsignados: [ProductoAsignadoInput]
+  }
+
+  input ProductoAsignadoInput {
+    producto: ID!
+    precioEspecial: Float
+    detalles: DetallesProductoInput
+  }
+
+  input DetallesProductoInput {
+    color: String
+    material: String
+    adhesivo: String
+    columnas: Int
+    embobinado: String
+    cantidadPorRollo: Int
   }
 
   input SupplierInput {
@@ -195,6 +231,7 @@ const typeDefs = gql`
     oficinas: [OfficeInput]
     contactoVentas: ContactInput
     contactoCredito: ContactInput
+    productosAsignados: [ProductoAsignadoInput]
   }
 
   input ProductInput {
@@ -235,9 +272,20 @@ const typeDefs = gql`
     modelo: String
   }
 
+  input DetallesProductoInput {
+    color: String
+    material: String
+    adhesivo: String
+    columnas: Int
+    embobinado: String
+    cantidadPorRollo: Int
+  }
+
   input InvoiceProductInput {
-    product: ID!
+    producto: ID!
     cantidad: Int!
+    precioEspecial: Float!
+    detalles: DetallesProductoInput
   }
   input InvoiceInput {
     invoiceNumber: String!
