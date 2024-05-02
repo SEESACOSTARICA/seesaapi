@@ -387,6 +387,11 @@ const resolvers = {
             throw new Error("Producto no encontrado");
           }
 
+          const productoConCodigo = {
+            ...producto.toObject(),
+            codigo: producto.codigo,
+          };
+
           // Asumiendo que el precio especial podría estar definido en 'productosAsignados'
           const assignedProduct = target.productosAsignados.find(
             (p) => p.producto.toString() === item.producto.toString()
@@ -400,6 +405,11 @@ const resolvers = {
 
           total += precioVenta * item.cantidad;
 
+          if (invoiceInput.type === "Compra") {
+            producto.existencia += item.cantidad;
+          } else {
+            producto.existencia -= item.cantidad;
+          }
           // if (invoiceInput.type === "Compra") {
           //   producto.existencia += item.cantidad;
           // } else {
