@@ -77,6 +77,7 @@ const typeDefs = gql`
     columnas: Int
     embobinado: String
     cantidadPorRollo: Int
+    core: String
   }
 
   type Supplier {
@@ -211,6 +212,7 @@ const typeDefs = gql`
     columnas: Int
     embobinado: String
     cantidadPorRollo: Int
+    core: String
   }
 
   input SupplierInput {
@@ -279,6 +281,7 @@ const typeDefs = gql`
     columnas: Int
     embobinado: String
     cantidadPorRollo: Int
+    core: String
   }
 
   input InvoiceProductInput {

@@ -21,6 +21,7 @@ const invoiceProductSchema = new Schema({
     columnas: Number,
     embobinado: String,
     cantidadPorRollo: Number,
+    core: String,
   },
 });
 
