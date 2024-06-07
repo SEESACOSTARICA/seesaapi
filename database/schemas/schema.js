@@ -158,7 +158,8 @@ const typeDefs = gql`
   }
 
   type InvoiceProduct {
-    producto: ID!
+    producto: Product!
+
     cantidad: Int!
     precioEspecial: Float!
     detalles: DetallesProducto

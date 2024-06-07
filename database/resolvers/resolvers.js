@@ -161,7 +161,15 @@ const resolvers = {
       return await Invoice.find({}).populate("products client supplier");
     },
     getInvoiceById: async (_, { id }) => {
-      return await Invoice.findById(id).populate("products client supplier");
+      return await Invoice.findById(id)
+        .populate({
+          path: "products",
+          populate: {
+            path: "producto",
+            model: "Producto",
+          },
+        })
+        .populate("client supplier");
     },
   },
   Mutation: {
@@ -519,9 +527,23 @@ const resolvers = {
     // },
 
     updateInvoice: async (_, { id, invoiceInput }) => {
-      return await Invoice.findByIdAndUpdate(id, invoiceInput, {
-        new: true,
-      }).populate("products client supplier");
+      try {
+        const updatedInvoice = await Invoice.findByIdAndUpdate(
+          id,
+          { $set: invoiceInput },
+          {
+            new: true,
+          }
+        )
+          .populate("products")
+          .populate("client")
+          .populate("supplier");
+        console.log(updatedInvoice);
+        return updatedInvoice;
+      } catch (error) {
+        console.log(error);
+        throw new Error("Error al actualizar la factura");
+      }
     },
     deleteInvoice: async (_, { id }) => {
       await Invoice.findByIdAndDelete(id);
