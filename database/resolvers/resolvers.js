@@ -346,10 +346,33 @@ const resolvers = {
 
     deleteProduct: async (_, { id }) => {
       try {
-        const deletedProduct = await Product.findByIdAndRemove(id);
-        return deletedProduct;
+        const product = await Product.findById(id);
+        if (!product) {
+          throw new Error("Producto no encontrado o ya fue eliminado");
+        }
+
+        // Encuentra todos los clientes que tienen este producto asignado
+        const clients = await Client.find({
+          "productosAsignados.producto": product._id,
+        });
+
+        // Eliminar la referencia del producto en cada cliente encontrado
+        const updates = clients.map((client) => {
+          client.productosAsignados = client.productosAsignados.filter(
+            (pa) => pa.producto.toString() !== product._id.toString()
+          );
+          return client.save(); // Guarda los cambios en la base de datos
+        });
+
+        // Espera a que todos los clientes sean actualizados antes de continuar
+        await Promise.all(updates);
+
+        // Ahora elimina el producto de la base de datos
+        await Product.findByIdAndDelete(id);
+        return product;
       } catch (error) {
-        throw new Error("Error al eliminar el producto");
+        console.error("Error interno al eliminar el producto", error);
+        throw new Error("Error interno al eliminar el producto");
       }
     },
 

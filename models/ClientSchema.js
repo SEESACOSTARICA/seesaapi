@@ -72,6 +72,7 @@ const clientSchema = new mongoose.Schema({
         embobinado: String,
         cantidadPorRollo: Number,
         core: String,
+        detalle: String,
       },
     },
   ],
