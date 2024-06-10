@@ -158,7 +158,15 @@ const resolvers = {
     },
 
     getAllInvoices: async () => {
-      return await Invoice.find({}).populate("products client supplier");
+      return await Invoice.find({})
+        .populate({
+          path: "products",
+          populate: {
+            path: "producto",
+            model: "Producto",
+          },
+        })
+        .populate("client supplier");
     },
     getInvoiceById: async (_, { id }) => {
       return await Invoice.findById(id)
