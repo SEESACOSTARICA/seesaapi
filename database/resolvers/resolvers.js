@@ -930,6 +930,11 @@ const resolvers = {
         }
 
         const productUpdates = invoiceInput.products.map(async (item) => {
+          if (!item.cantidad || isNaN(item.cantidad)) {
+            throw new Error(
+              `Cantidad inválida para el producto: ${item.producto}`
+            );
+          }
           // Verificar si el producto está en los productos asignados del cliente/proveedor
           const isAssignedProduct = target.productosAsignados.some(
             (p) => p.producto.toString() === item.producto.toString()
@@ -971,17 +976,6 @@ const resolvers = {
           } else {
             producto.existencia -= item.cantidad;
           }
-          // if (invoiceInput.type === "Compra") {
-          //   producto.existencia += item.cantidad;
-          // } else {
-          //   // 'Venta'
-          //   producto.existencia -= item.cantidad;
-          //   if (producto.existencia < 0) {
-          //     throw new Error(
-          //       `Existencia insuficiente para el producto ${producto.id}`
-          //     );
-          //   }
-          // }
 
           await producto.save({ session });
         });
