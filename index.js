@@ -5,6 +5,7 @@ const dbConnection = require("./config/database");
 const jwt = require("jsonwebtoken");
 const express = require("express");
 const cors = require("cors");
+const { graphqlUploadExpress } = require("graphql-upload");
 
 require("dotenv").config({ path: "./config/.env" });
 
@@ -23,6 +24,7 @@ const getUserFromToken = async (token, JWT_SECRET) => {
 
 const startServer = async () => {
   const app = express();
+  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
 
   const server = new ApolloServer({
     typeDefs,
@@ -38,6 +40,7 @@ const startServer = async () => {
       }
       return {};
     },
+    uploads: false,
     introspection: true, // Modo introspección, desactivar en producción
     formatError: (error) => {
       // Formato de errores personalizado

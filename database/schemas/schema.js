@@ -1,6 +1,8 @@
 const { gql } = require("apollo-server");
 
 const typeDefs = gql`
+  scalar Upload
+
   type Token {
     token: String
   }
@@ -31,12 +33,24 @@ const typeDefs = gql`
 
   type Client {
     id: ID!
+    Apellido1: String
+    Apellido2: String
+    Correo: String
+    Provincia: Int
+    Canton: Int
+    Distrito: Int
+    Barrio: Int
+    Direccion: String
+    Area: Int
+    Telefono: String
+    Copia: String
+    Nombre: String
     razonSocial: String
     nombreComercial: String
     tipoIdentificacion: String
-    numeroIdentificacion: String
+    Cedula: String
     detallesGenerales: String
-    codigo: String
+    Codigo: String
     correosElectronicos: [String]
     tipoDocumento: String
     correoEnvioFE: String
@@ -86,8 +100,8 @@ const typeDefs = gql`
     razonSocial: String
     nombreComercial: String
     tipoIdentificacion: String
-    numeroIdentificacion: String
-    codigo: String
+    Cedula: String
+    Codigo: String
     correosElectronicos: [String]
     tipoDocumento: String
     condicionDeVenta: String
@@ -168,12 +182,24 @@ const typeDefs = gql`
   # Inputs
 
   input ClientInput {
+    Apellido1: String
+    Apellido2: String
+    Correo: String
+    Provincia: Int
+    Canton: Int
+    Distrito: Int
+    Barrio: Int
+    Direccion: String
+    Area: Int
+    Telefono: String
+    Copia: String
+    Nombre: String
     razonSocial: String
     nombreComercial: String
     tipoIdentificacion: String
-    numeroIdentificacion: String
+    Cedula: String
     detallesGenerales: String
-    codigo: String
+    Codigo: String
     correosElectronicos: [String]
     tipoDocumento: String
     correoEnvioFE: String
@@ -222,8 +248,8 @@ const typeDefs = gql`
     razonSocial: String
     nombreComercial: String
     tipoIdentificacion: String
-    numeroIdentificacion: String
-    codigo: String
+    Cedula: String
+    Codigo: String
     correosElectronicos: [String]
     tipoDocumento: String
     condicionDeVenta: String
@@ -341,6 +367,10 @@ const typeDefs = gql`
     createInvoice(invoiceInput: InvoiceInput): Invoice
     updateInvoice(id: ID!, invoiceInput: InvoiceInput): Invoice
     deleteInvoice(id: ID!): String
+
+    subirProductosDesdeExcel(archivo: Upload!): String
+    subirClientesDesdeExcel(archivo: Upload!): String
+    subirProveedoresDesdeExcel(archivo: Upload!): String
   }
 `;
 
