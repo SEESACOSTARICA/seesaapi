@@ -5,7 +5,7 @@ const supplierSchema = new mongoose.Schema({
   razonSocial: { type: String },
   nombreComercial: { type: String },
   tipoIdentificacion: { type: String },
-  Cedula: { type: String, unique: true },
+  Cedula: { type: String },
   Codigo: { type: String },
   correosElectronicos: [{ type: String }],
   tipoDocumento: { type: String },

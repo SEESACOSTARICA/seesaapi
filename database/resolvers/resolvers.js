@@ -564,16 +564,16 @@ const resolvers = {
         throw new Error("El archivo no es válido o no contiene un stream");
       }
 
-      // Asegúrate de que la carpeta 'uploads' exista
+      // Asegurarse de que la carpeta 'uploads' exista
       const uploadDir = path.join(__dirname, "uploads");
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
-      // Define la ruta donde se guardará temporalmente el archivo
+      // Definir la ruta donde se guardará temporalmente el archivo
       const filePath = path.join(uploadDir, filename);
 
-      // Guarda el archivo temporalmente en la carpeta 'uploads'
+      // Guardar el archivo temporalmente en la carpeta 'uploads'
       await new Promise((resolve, reject) => {
         const stream = createReadStream();
         const out = fs.createWriteStream(filePath);
@@ -582,12 +582,12 @@ const resolvers = {
         out.on("error", reject);
       });
 
-      // Lee el archivo Excel
+      // Leer el archivo Excel
       const workbook = XLSX.readFile(filePath);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const proveedoresExcel = XLSX.utils.sheet_to_json(sheet);
 
-      // Procesa cada proveedor de manera secuencial con async/await
+      // Procesar cada proveedor de manera secuencial con async/await
       for (const proveedorData of proveedoresExcel) {
         console.log("Procesando proveedor:", proveedorData); // Depuración para ver los datos
 
@@ -855,12 +855,15 @@ const resolvers = {
             proveedor,
             clientes,
           });
+
+          console.log("Productos cargados exitosamente", nuevoProducto);
+
           await nuevoProducto.save();
         }
       }
 
       // Elimina el archivo temporal
-      fs.unlinkSync(filePath);
+      // fs.unlinkSync(filePath);
 
       return "Productos cargados exitosamente";
     },
