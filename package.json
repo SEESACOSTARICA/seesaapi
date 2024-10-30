@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node .",
-    "dev": "nodemon .",
-    "install": "npm install --legacy-peer-deps"
+    "dev": "nodemon ."
   },
   "author": "Jossué Chinchilla Salazar",
   "license": "ISC",

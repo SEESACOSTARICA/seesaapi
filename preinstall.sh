@@ -1,2 +1,2 @@
 # preinstall.sh
-npm install --legacy-peer-deps
+npm install --force
