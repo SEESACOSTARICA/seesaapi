@@ -241,21 +241,17 @@ const resolvers = {
     async subirClientesDesdeExcel(_, { archivo }) {
       const { createReadStream, filename } = await archivo;
 
-      // Verifica que el archivo sea válido
       if (!createReadStream) {
         throw new Error("El archivo no es válido o no contiene un stream");
       }
 
-      // Asegúrate de que la carpeta 'uploads' exista
       const uploadDir = path.join(__dirname, "uploads");
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
-      // Define la ruta donde se guardará temporalmente el archivo
       const filePath = path.join(uploadDir, filename);
 
-      // Guarda el archivo temporalmente en la carpeta 'uploads'
       await new Promise((resolve, reject) => {
         const stream = createReadStream();
         const out = fs.createWriteStream(filePath);
@@ -264,175 +260,120 @@ const resolvers = {
         out.on("error", reject);
       });
 
-      // Lee el archivo Excel
       const workbook = XLSX.readFile(filePath);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const clientesExcel = XLSX.utils.sheet_to_json(sheet);
 
-      // Procesa cada cliente de manera secuencial con async/await
+      const cedulas = clientesExcel.map((cliente) =>
+        String(cliente.Cedula).trim()
+      );
+
+      // Busca los clientes existentes en la base de datos por sus cédulas
+      const clientesExistentes = await Client.find({
+        cedula: { $in: cedulas },
+      });
+      const cedulasExistentes = new Set(
+        clientesExistentes.map((cliente) => cliente.cedula)
+      );
+
       for (const clienteData of clientesExcel) {
-        try {
-          const {
-            Apellido1 = "",
-            Apellido2 = "",
-            Correo = "",
-            Provincia = 0,
-            Canton = 0,
-            Distrito = 0,
-            Barrio = 0,
-            Direccion = "",
-            Area = 0,
-            Telefono = "",
-            Copia = "",
-            Nombre = "",
-            razonSocial = "",
-            nombreComercial = "",
-            tipoIdentificacion = "",
-            Cedula = "",
-            Codigo = "",
-            correosElectronicos = "", // cadena separada por comas en el Excel
-            tipoDocumento = "",
-            correoEnvioFE = "",
-            destinatarioEnvioFE = "",
-            detallesGenerales = "",
-            condicionVenta = "",
-            plazo = null,
-            limiteCredito = null,
-            moneda = "",
-            metodoPago = "",
-            formaEntrega = "",
-            transporte = "",
-            destino = "",
-            detalleObservacion = "",
-            cobrarEnvio = null,
-            telefonoOficina1 = "",
-            provinciaOficina1 = "",
-            cantonOficina1 = "",
-            distritoOficina1 = "",
-            detalleOficina1 = "",
-            exonerado = null,
-            numeroAutorizacion = "",
-            fechaAutorizacion = null,
-            fechaVencimiento = null,
-            porcentajeExoneracion = null,
-            institucionEmisora = "",
-            marcaImpresora1 = "",
-            modeloImpresora1 = "",
-            nombreContactoPagos = "",
-            telefonoContactoPagos = "",
-            celularContactoPagos = "",
-            correoElectronicoContactoPagos = "",
-            nombreContactoCompras = "",
-            telefonoContactoCompras = "",
-            celularContactoCompras = "",
-            correoElectronicoContactoCompras = "",
-          } = clienteData;
+        const cedula = String(clienteData.Cedula).trim();
 
-          // Convertir Cedula a string en caso de que sea un número
-          const cedula = String(Cedula);
+        // Solo procede si la cédula no está en la base de datos
+        if (!cedulasExistentes.has(cedula)) {
+          try {
+            const {
+              Apellido1 = "",
+              Apellido2 = "",
+              Correo = "",
+              Provincia = 0,
+              Canton = 0,
+              Distrito = 0,
+              Barrio = 0,
+              Direccion = "",
+              Area = 0,
+              Telefono = "",
+              Copia = "",
+              Nombre = "",
+              razonSocial = "",
+              nombreComercial = "",
+              tipoIdentificacion = "",
+              Cedula = "",
+              Codigo = "",
+              correosElectronicos = "",
+              tipoDocumento = "",
+              correoEnvioFE = "",
+              destinatarioEnvioFE = "",
+              detallesGenerales = "",
+              condicionVenta = "",
+              plazo = null,
+              limiteCredito = null,
+              moneda = "",
+              metodoPago = "",
+              formaEntrega = "",
+              transporte = "",
+              destino = "",
+              detalleObservacion = "",
+              cobrarEnvio = null,
+              telefonoOficina1 = "",
+              provinciaOficina1 = "",
+              cantonOficina1 = "",
+              distritoOficina1 = "",
+              detalleOficina1 = "",
+              exonerado = null,
+              numeroAutorizacion = "",
+              fechaAutorizacion = null,
+              fechaVencimiento = null,
+              porcentajeExoneracion = null,
+              institucionEmisora = "",
+              marcaImpresora1 = "",
+              modeloImpresora1 = "",
+              nombreContactoPagos = "",
+              telefonoContactoPagos = "",
+              celularContactoPagos = "",
+              correoElectronicoContactoPagos = "",
+              nombreContactoCompras = "",
+              telefonoContactoCompras = "",
+              celularContactoCompras = "",
+              correoElectronicoContactoCompras = "",
+            } = clienteData;
 
-          // Procesar correos electrónicos separados por comas
-          const correosArray = correosElectronicos
-            ? correosElectronicos.split(",")
-            : [];
+            const correosArray = correosElectronicos
+              ? correosElectronicos.split(",")
+              : [];
+            const oficinasArray =
+              telefonoOficina1 ||
+              provinciaOficina1 ||
+              cantonOficina1 ||
+              distritoOficina1 ||
+              detalleOficina1
+                ? [
+                    {
+                      telefono: telefonoOficina1,
+                      provincia: provinciaOficina1,
+                      canton: cantonOficina1,
+                      distrito: distritoOficina1,
+                      detalle: detalleOficina1,
+                    },
+                  ]
+                : [];
+            const impresorasArray =
+              marcaImpresora1 || modeloImpresora1
+                ? [{ marca: marcaImpresora1, modelo: modeloImpresora1 }]
+                : [];
+            const contactoPagos = {
+              nombre: nombreContactoPagos,
+              telefono: telefonoContactoPagos,
+              celular: celularContactoPagos,
+              correoElectronico: correoElectronicoContactoPagos,
+            };
+            const contactoCompras = {
+              nombre: nombreContactoCompras,
+              telefono: telefonoContactoCompras,
+              celular: celularContactoCompras,
+              correoElectronico: correoElectronicoContactoCompras,
+            };
 
-          // Procesar oficinas
-          const oficinasArray = [];
-          if (
-            telefonoOficina1 ||
-            provinciaOficina1 ||
-            cantonOficina1 ||
-            distritoOficina1 ||
-            detalleOficina1
-          ) {
-            oficinasArray.push({
-              telefono: telefonoOficina1,
-              provincia: provinciaOficina1,
-              canton: cantonOficina1,
-              distrito: distritoOficina1,
-              detalle: detalleOficina1,
-            });
-          }
-
-          // Procesar impresoras
-          const impresorasArray = [];
-          if (marcaImpresora1 || modeloImpresora1) {
-            impresorasArray.push({
-              marca: marcaImpresora1,
-              modelo: modeloImpresora1,
-            });
-          }
-
-          // Procesar contactoPagos
-          const contactoPagos = {
-            nombre: nombreContactoPagos,
-            telefono: telefonoContactoPagos,
-            celular: celularContactoPagos,
-            correoElectronico: correoElectronicoContactoPagos,
-          };
-
-          // Procesar contactoCompras
-          const contactoCompras = {
-            nombre: nombreContactoCompras,
-            telefono: telefonoContactoCompras,
-            celular: celularContactoCompras,
-            correoElectronico: correoElectronicoContactoCompras,
-          };
-
-          // Busca si el cliente ya existe en la base de datos por su número de identificación
-          const clienteExistente = await Client.findOne({
-            cedula,
-          });
-
-          if (clienteExistente) {
-            // Actualiza el cliente existente
-            Object.assign(clienteExistente, {
-              Apellido1,
-              Apellido2,
-              Correo,
-              Provincia,
-              Canton,
-              Distrito,
-              Barrio,
-              Direccion,
-              Area,
-              Telefono,
-              Copia,
-              Nombre,
-              razonSocial,
-              nombreComercial,
-              tipoIdentificacion,
-              Codigo,
-              correosElectronicos: correosArray,
-              tipoDocumento,
-              correoEnvioFE,
-              destinatarioEnvioFE,
-              detallesGenerales,
-              condicionVenta,
-              plazo,
-              limiteCredito,
-              moneda,
-              metodoPago,
-              formaEntrega,
-              transporte,
-              destino,
-              detalleObservacion,
-              cobrarEnvio,
-              oficinas: oficinasArray,
-              exonerado,
-              numeroAutorizacion,
-              fechaAutorizacion,
-              fechaVencimiento,
-              porcentajeExoneracion,
-              institucionEmisora,
-              impresoras: impresorasArray,
-              contactoPagos,
-              contactoCompras,
-            });
-
-            await clienteExistente.save();
-          } else {
-            // Crea un nuevo cliente si no existe con todos los campos
             const nuevoCliente = new Client({
               Apellido1,
               Apellido2,
@@ -477,18 +418,19 @@ const resolvers = {
               contactoPagos,
               contactoCompras,
             });
+
             await nuevoCliente.save();
+          } catch (error) {
+            console.error("Error procesando cliente:", clienteData, error);
           }
-        } catch (error) {
-          console.error("Error procesando cliente:", clienteData, error);
         }
       }
 
-      // Elimina el archivo temporal
       fs.unlinkSync(filePath);
 
       return "Clientes cargados exitosamente";
     },
+
     // Resolver to update an existing client
     updateClient: async (_, { id, input }) => {
       try {
@@ -885,6 +827,24 @@ const resolvers = {
       }
     },
 
+    updateAllProductsExistence: async () => {
+      try {
+        const result = await Product.updateMany(
+          {},
+          { $set: { existencia: 0 } }
+        );
+
+        console.log(result);
+        return {
+          message: "Todos los productos han sido actualizados con existencia 0",
+          modifiedCount: result.modifiedCount,
+        };
+      } catch (error) {
+        console.log(error);
+        throw new Error("Error al actualizar todos los productos");
+      }
+    },
+
     deleteProduct: async (_, { id }) => {
       try {
         const product = await Product.findById(id);
@@ -933,21 +893,21 @@ const resolvers = {
         }
 
         const productUpdates = invoiceInput.products.map(async (item) => {
-          if (!item.cantidad || isNaN(item.cantidad)) {
-            throw new Error(
-              `Cantidad inválida para el producto: ${item.producto}`
-            );
-          }
+          // if (!item.cantidad || isNaN(item.cantidad)) {
+          //   throw new Error(
+          //     `Cantidad inválida para el producto: ${item.producto}`
+          //   );
+          // }
           // Verificar si el producto está en los productos asignados del cliente/proveedor
-          const isAssignedProduct = target.productosAsignados.some(
-            (p) => p.producto.toString() === item.producto.toString()
-          );
+          // const isAssignedProduct = target.productosAsignados.some(
+          //   (p) => p.producto.toString() === item.producto.toString()
+          // );
 
-          if (!isAssignedProduct) {
-            throw new Error(
-              `Producto no asignado al Cliente/Proveedor: ${item.producto}`
-            );
-          }
+          // if (!isAssignedProduct) {
+          //   throw new Error(
+          //     `Producto no asignado al Cliente/Proveedor: ${item.producto}`
+          //   );
+          // }
 
           const producto = await Product.findById(item.producto).session(
             session
@@ -956,23 +916,19 @@ const resolvers = {
             throw new Error("Producto no encontrado");
           }
 
-          const productoConCodigo = {
-            ...producto.toObject(),
-            codigo: producto.codigo,
-          };
-
           // Asumiendo que el precio especial podría estar definido en 'productosAsignados'
-          const assignedProduct = target.productosAsignados.find(
-            (p) => p.producto.toString() === item.producto.toString()
-          );
+          // const assignedProduct = target.productosAsignados.find(
+          //   (p) => p.producto.toString() === item.producto.toString()
+          // );
 
-          console.log(assignedProduct);
-          const precioVenta =
-            assignedProduct && assignedProduct.precioEspecial
-              ? assignedProduct.precioEspecial
-              : producto.venta;
+          console.log(invoiceInput);
+          // console.log(assignedProduct);
+          // const precioVenta = invoiceInput.total;
+          // assignedProduct && assignedProduct.precioEspecial
+          //   ? assignedProduct.precioEspecial
+          //   : producto.venta;
 
-          total += precioVenta * item.cantidad;
+          // total += precioVenta * item.cantidad;
 
           if (invoiceInput.type === "Compra") {
             producto.existencia += item.cantidad;
@@ -987,7 +943,6 @@ const resolvers = {
 
         const newInvoice = new Invoice({
           ...invoiceInput,
-          total,
         });
 
         await newInvoice.save({ session });

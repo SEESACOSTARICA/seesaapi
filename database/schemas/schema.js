@@ -169,6 +169,7 @@ const typeDefs = gql`
     type: String!
     total: Float!
     products: [InvoiceProduct!]!
+    detalle: String
   }
 
   type InvoiceProduct {
@@ -176,7 +177,6 @@ const typeDefs = gql`
 
     cantidad: Int!
     precioEspecial: Float!
-    detalles: DetallesProducto
   }
 
   # Inputs
@@ -318,7 +318,6 @@ const typeDefs = gql`
     producto: ID!
     cantidad: Int!
     precioEspecial: Float!
-    detalles: DetallesProductoInput
   }
   input InvoiceInput {
     invoiceNumber: String!
@@ -328,6 +327,7 @@ const typeDefs = gql`
     products: [InvoiceProductInput!]
     client: ID
     supplier: ID
+    detalle: String
   }
 
   # Queries
@@ -348,6 +348,11 @@ const typeDefs = gql`
     getInvoiceById(id: ID!): Invoice
   }
 
+  type UpdateResult {
+    message: String
+    modifiedCount: Int
+  }
+
   type Mutation {
     # Mutaciones para la creación de usuarios y autenticación
     createUser(input: CreateUserInput): AuthPayload
@@ -362,6 +367,7 @@ const typeDefs = gql`
 
     createProduct(input: ProductInput): Product
     updateProduct(id: ID!, input: ProductInput): Product
+    updateAllProductsExistence: UpdateResult
     deleteProduct(id: ID!): Product
 
     createInvoice(invoiceInput: InvoiceInput): Invoice

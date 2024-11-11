@@ -14,16 +14,6 @@ const invoiceProductSchema = new Schema({
   precioEspecial: {
     type: Number,
   },
-  detalles: {
-    color: String,
-    material: String,
-    adhesivo: String,
-    columnas: Number,
-    embobinado: String,
-    cantidadPorRollo: Number,
-    core: String,
-    detalle: String,
-  },
 });
 
 const invoiceSchema = new Schema({
@@ -34,6 +24,9 @@ const invoiceSchema = new Schema({
   date: { type: Date, default: Date.now },
   products: [invoiceProductSchema],
   total: { type: Number, required: true },
+  detalle: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("Invoice", invoiceSchema);
