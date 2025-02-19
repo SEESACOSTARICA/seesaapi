@@ -31,7 +31,6 @@ const startServer = async () => {
     resolvers,
     context: async ({ req }) => {
       const authHeader = req.headers.authorization || "";
-
       const token = authHeader.split(" ")[1];
 
       if (token) {
@@ -41,11 +40,10 @@ const startServer = async () => {
       return {};
     },
     uploads: false,
-    introspection: true, // Modo introspección, desactivar en producción
-    formatError: (error) => {
-      // Formato de errores personalizado
-      return error;
-    },
+    introspection: false, // Desactiva en producción
+    formatError: (error) => error,
+    cache: "bounded", // Limitar caché para evitar ataques DoS
+    persistedQueries: false, // Opcional: desactivar por completo
   });
 
   app.use(cors());
